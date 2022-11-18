@@ -1,6 +1,5 @@
 
 const DataList = ({ userProfile }) => {
-  console.log(userProfile)
   return (
     <div className="user datalist">
       <ul>

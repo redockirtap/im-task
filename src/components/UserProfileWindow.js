@@ -12,7 +12,7 @@ const UserProfileWindow = ({ userProfile }) => {
             </div>
             :
             <>
-            Noooo!
+
             </>
         }
     </>  

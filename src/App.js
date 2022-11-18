@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import Header from "./components/Header";
 import Button from "./components/Button";
 import UserProfileWindow from "./components/UserProfileWindow";
+import ReposList from "./components/ReposList";
 
 const CLIENT_ID = "2e7940c77b22ef261b29";
 
@@ -69,52 +70,15 @@ function App() {
     <div className="App">
       <header className="App-header">
         {localStorage.getItem("accessToken") ?
-        <>
+        <div className="main-container">
           <Button text="Log Out" onClick={() => {localStorage.removeItem("accessToken"); SetRerender(!rerender)}} />
           <Button text="User Info" onClick={getUserProfile} />
           <Header login={userProfile.login} />
           <UserProfileWindow userProfile={userProfile}  />
-          {/* <button onClick={getUserProfile}>User Info</button> */}
-          {/* {Object.keys(userProfile).length !== 0 ?
-          <>
-            <h3>Hey there, {userProfile.login}</h3>
-            <h4>{userProfile.bio}</h4>
-            <img width="100px" height="100px" src={userProfile.avatar_url}></img>
-            <ul>
-              <li>{userProfile.name}</li>
-              {userProfile.email ?
-              <>
-                <li>{userProfile.email}</li>
-              </>
-              :
-              <>
-                <li>email is missing</li>
-              </>
-              }
-              {userProfile.location ?
-              <>
-                <li>{userProfile.location}</li>
-              </>
-              :
-              <>
-                <li>location is missing</li>
-              </>
-              }
-              <li>private repos: {userProfile.total_private_repos}</li>
-              <li>public repos: {userProfile.public_repos}</li>
-              <li>{userProfile.repos_url}</li>
-            </ul>
 
-            <>
-              <button onClick={getReposCards}>Show Repos</button>
-            </>
-          </>
-          :
-          <>
-
-          </>
-          } */}
-        </>  
+          <Button text="Show Repos" onClick={getReposCards} />
+          {Object.keys(allRepos).length > 0 && <ReposList allRepos={allRepos} />}
+        </div>  
         :
         <>
           <h3>User is not Logged in</h3>
