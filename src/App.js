@@ -2,6 +2,10 @@ import logo from './logo.svg';
 import './App.css';
 import { useEffect, useState } from 'react';
 
+import Header from "./components/Header";
+import Button from "./components/Button";
+import UserProfileWindow from "./components/UserProfileWindow";
+
 const CLIENT_ID = "2e7940c77b22ef261b29";
 
 function App() {
@@ -26,13 +30,6 @@ function App() {
         console.log(data);
         if(data.access_token) localStorage.setItem("accessToken", data.access_token);
         SetRerender(!rerender);
-        // .then(response => {
-        //   return response.json();
-        // }).then(data => {
-        //   console.log(data);
-        //   if(data.access_token) localStorage.setItem("accessToken", data.access_token);
-        //   SetRerender(!rerender);
-        // })
       }
       getAccessToken();
     }
@@ -49,8 +46,6 @@ function App() {
     const data = await res.json();
     console.log(data);
     setUserProfile(data);
-
-    // .then(response => response.json()).then(data => {console.log(data); setUserProfile(data)});
   };
 
   async function getReposCards() {
@@ -58,7 +53,6 @@ function App() {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
-        // "Accept": "application/vnd.github+json",
       },
     })
 
@@ -76,9 +70,12 @@ function App() {
       <header className="App-header">
         {localStorage.getItem("accessToken") ?
         <>
-          <button onClick={() => {localStorage.removeItem("accessToken"); SetRerender(!rerender)}}>Log out</button>
-          <button onClick={getUserProfile}>User Info</button>
-          {Object.keys(userProfile).length !== 0 ?
+          <Button text="Log Out" onClick={() => {localStorage.removeItem("accessToken"); SetRerender(!rerender)}} />
+          <Button text="User Info" onClick={getUserProfile} />
+          <Header login={userProfile.login} />
+          <UserProfileWindow userProfile={userProfile}  />
+          {/* <button onClick={getUserProfile}>User Info</button> */}
+          {/* {Object.keys(userProfile).length !== 0 ?
           <>
             <h3>Hey there, {userProfile.login}</h3>
             <h4>{userProfile.bio}</h4>
@@ -116,7 +113,7 @@ function App() {
           <>
 
           </>
-          }
+          } */}
         </>  
         :
         <>
