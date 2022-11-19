@@ -13,7 +13,8 @@ function App() {
   const [rerender, SetRerender] = useState(false);
   const [userProfile, setUserProfile] = useState({});
   const [allRepos, setAllRepos] = useState({});
-  const [visible, setVisible] = useState(5);
+  const [visible, setVisible] = useState(6);
+  const [visibleUserProfile, setVisibleUserProfile] = useState(false);
   
   useEffect(() => { // используется для проверки - получен ли код
     const urlWithCode = window.location.search;
@@ -38,7 +39,7 @@ function App() {
   }, []);
 
   async function getUserProfile() {
-    if (userProfile.length > 0) return;
+    // if (localStorage.getItem("visibleUserProfile")) return;
     console.log('render!');
     const res = await fetch("http://localhost:4000/getUserProfile", {
       method: "GET",
@@ -48,9 +49,13 @@ function App() {
     })
     const data = await res.json();
     setUserProfile(data);
+    // setVisibleUserProfile(true);
+    // localStorage.setItem("visibleUserProfile", true);
   };
 
   async function getReposCards() {
+    // console.log(localStorage.getItem("pagesCache"));
+    // if (localStorage.getItem("pagesCache") > 0) return;
     const res = await fetch("http://localhost:4000/getUserRepos", {
       method: "GET",
       headers: {
@@ -58,7 +63,7 @@ function App() {
       },
     })
     const data = await res.json();
-    console.log(data);
+    // localStorage.setItem("pagesCache", visible);
     setAllRepos(data);
   }
 
@@ -66,8 +71,9 @@ function App() {
     window.location.assign(`https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&scope=user%20repo&per_page=1000`);
   };
 
-  const showMoreRepos = () => {
-    setVisible((prevValue) => prevValue + 5);
+  const showMoreRepos = () => { // Pagination
+    setVisible((prevValue) => prevValue + 6);
+    localStorage.setItem("pagesCache", visible);
   };
 
   return (
@@ -76,19 +82,20 @@ function App() {
         {localStorage.getItem("accessToken") ?
         <div className="main-container">
           <div className="navbar">
-            <Button className="btn logout" text="Log Out" onClick={() => {localStorage.removeItem("accessToken"); SetRerender(!rerender)}} />
+            <Button className="btn logout" text="Log Out" onClick={() => {localStorage.clear(); SetRerender(!rerender)}} />
             <Button className="btn info" text="User Info" onClick={getUserProfile} />
+            <Button className="btn show-repos" text="Show Repos" onClick={getReposCards} />
           </div>
           <Header login={userProfile.login} />
           {<UserProfileWindow userProfile={userProfile} />}
 
-          <Button className="btn show-repos" text="Show Repos" onClick={getReposCards} />
-          {Object.keys(allRepos).length > 0 && <ReposList visibleRepos={visible} allRepos={allRepos} />}
-          <Button className="btn load-repos" text="Load More" onClick={showMoreRepos} />
+          {Object.keys(allRepos).length > 0 
+          && <ReposList visibleRepos={visible} allRepos={allRepos} showMore={showMoreRepos} />}
+          
         </div>  
         :
         <>
-          <h3><Button className="btn login shake" text="Login via GitHub" onClick={githubOauth} />, to see the stats</h3>
+          <h3><Button className="btn login" text="Login via GitHub" onClick={githubOauth} />, to see the stats</h3>
         </>
       }
       </header>
