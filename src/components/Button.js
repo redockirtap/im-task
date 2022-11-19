@@ -1,8 +1,12 @@
 
-const Button = ({ text, onClick }) => {
+const Button = ({ className, text, onClick, onToggle }) => {
   return (
-    <button className="btn" onClick={onClick}>{text}</button>
+    <button className={className} onClick={onClick}>{text}</button>
   )
+}
+
+Button.defaultProps = {
+  className: "btn",
 }
 
 export default Button

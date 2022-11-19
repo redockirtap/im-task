@@ -1,13 +1,9 @@
 const Header = ({ login }) => {
     return (
-        <header>
-            { login && <h1>Hello, {login}!</h1>}
+        <header className="header">
+            { login && <h3>Hello, {login}!</h3>}
         </header>
     )
 }
-
-// Header.defaultProps = {
-//     login: "anon",
-// }
 
 export default Header

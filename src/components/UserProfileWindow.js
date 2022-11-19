@@ -4,8 +4,9 @@ const UserProfileWindow = ({ userProfile }) => {
   return (
     <>
         {Object.keys(userProfile).length > 0 ?
-            <div className="user">
+            <div className="user-container">
                 <div className="user profile-bio">
+                    <img src={userProfile.avatar_url} alt={`${userProfile.login} avatar`}/>
                     I am {userProfile.name}!
                 </div>
                 <DataList userProfile={userProfile} className="user profile-info" />

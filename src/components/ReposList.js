@@ -1,9 +1,9 @@
 import Repo from "./Repo"
 
-const ReposList = ({ allRepos }) => {
+const ReposList = ({ allRepos, visibleRepos }) => {
   return (
     <div className="repos-list">
-        {allRepos.map(repo  => {
+        {allRepos.slice(0, visibleRepos).map(repo  => {
             return <Repo key={repo.id} repoId={repo.id} repoName={repo.name}/>
         })}
     </div>
