@@ -14,7 +14,7 @@ function App() {
   const [rerender, SetRerender] = useState(false);
   const [userProfile, setUserProfile] = useState({});
   const [allRepos, setAllRepos] = useState({});
-  const [visible, setVisible] = useState(6);
+  const [visible, setVisible] = useState(localStorage.getItem("pagesCache") ? Number(localStorage.getItem("pagesCache")) : 6);
   const [visibleUserProfile, setVisibleUserProfile] = useState(false);
   
   useEffect(() => { 
@@ -41,7 +41,6 @@ function App() {
     const data = new Response(JSON.stringify(res));
     caches.open(cacheName).then((cache) => {
     cache.put(url, data);
-    alert('Data Added into cache!')
     });
   };
   
@@ -65,20 +64,6 @@ function App() {
     SetRerender(!rerender);
   }
 
-  // const getFromCache = async () => {
-    
-  //   const url = 'https://localhost:3000'
-  //   const cacheName = await caches.keys()
-  //   cacheName.filter(async(name) => {
-  //     const cacheStorage = await caches.open(name);
-  //     const cachedResponse = await cacheStorage.match(url);
-  //     const data = await cachedResponse.json() 
-  //     console.log(data);
-  //     setUserProfile(data);
-  //   })
-  // };
-  
-
   async function getUserProfile() {
     if (userProfile.length > 0) return;
     console.log('render!');
@@ -94,36 +79,15 @@ function App() {
     getFromCache('User Profile', 'https://localhost:3000');
   };
 
-  
-  // const getUserProfileCache = async () => {
-    
-	// 	const url = 'https://localhost:4000'
-	// 	const names = await caches.keys()
-	// 	const cacheDataArray = []
-	// 	names.forEach(async(name) => {
-	// 	  const cacheStorage = await caches.open(name);
-	// 	  // Fetching that particular cache data
-	// 	  const cachedResponse = await cacheStorage.match(url);
-	// 	  const dataB = await cachedResponse.json() /////////////////////////////TVOJA DATA////
-	// 	  // Pushing fetched data into our cacheDataArray
-	// 	  cacheDataArray.push(dataB);
-	// 	  console.log(dataB);
-	// 	  setUserProfile(dataB);
-	// 	})
-  // };
-
 
   useEffect(() => { 
 	  getFromCache('User Profile','https://localhost:3000');
-	  // if (userProfile.length > 0) getFromCache('User Profile','https://localhost:3000');
-	  // if (allRepos.length > 0) getFromCache('User Repos','https://localhost:3000');
 	  getFromCache('User Repos','https://localhost:3000');
   }, []);
 
 
   async function getReposCards() {
-    // console.log(localStorage.getItem("pagesCache"));
-    // if (localStorage.getItem("pagesCache") > 0) return;
+    if (localStorage.getItem("pagesCache")) return;
     const res = await fetch("http://localhost:4000/getUserRepos", {
       method: "GET",
       headers: {
@@ -131,9 +95,8 @@ function App() {
       },
     })
     const data = await res.json();
-    // localStorage.setItem("pagesCache", visible);
+    localStorage.setItem("pagesCache", 6);
     addToCache('User Repos', 'https://localhost:3000', data);
-    // getFromCache('User Repos', 'https://localhost:3000');
     setAllRepos(data);
   }
 
@@ -141,9 +104,11 @@ function App() {
     window.location.assign(`https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&scope=user%20repo&per_page=1000`);
   };
 
-  const showMoreRepos = () => { // Pagination
-    setVisible((prevValue) => prevValue + 6);
-    localStorage.setItem("pagesCache", visible);
+  const showMoreRepos = async () => { // Pagination
+    setVisible((prevValue) => {
+      localStorage.setItem("pagesCache", prevValue + 6);
+      return prevValue + 6;
+    });
   };
   
   return (
