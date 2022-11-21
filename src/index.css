@@ -14,7 +14,7 @@ body, html {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.profile-bio, li, .repo {
+.profile-bio, li, .repo, p {
   color: var(--font-color);
 }
 
@@ -131,6 +131,30 @@ img {
   gap: 2rem;
 }
 
+.modal-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgb(52, 44, 44);
+  padding: 2rem;
+  z-index: 1000;
+  width: 40vw;
+  height: 40vh;
+}
+
+.modal-overlay{ 
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  top: 0%;
+  bottom: 0%;
+  left: 0%;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.614);
+  z-index: 1000;
+
+}
 /* @keyframes shake {
   0% { -webkit-transform: translate(0px, -8px); } 
   25% { -webkit-transform: translate(0px, -2px); }

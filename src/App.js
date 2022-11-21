@@ -6,6 +6,7 @@ import Header from "./components/Header";
 import Button from "./components/Button";
 import UserProfileWindow from "./components/UserProfileWindow";
 import ReposList from "./components/ReposList";
+import Modal from "./components/Modal"
 
 const CLIENT_ID = "2e7940c77b22ef261b29";
 
@@ -15,6 +16,7 @@ function App() {
   const [userProfile, setUserProfile] = useState({});
   const [allRepos, setAllRepos] = useState({});
   const [visible, setVisible] = useState(localStorage.getItem("pagesCache") ? Number(localStorage.getItem("pagesCache")) : 6);
+  const [modalOpen, setModalOpen] = useState(false);
   
   function githubOauth() {
     window.location.assign(`https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&scope=user%20repo&per_page=1000`);
@@ -104,12 +106,18 @@ function App() {
       return prevValue + 6;
     });
   };
+
+  const showModal = () => {
+    console.log("hei");
+    setModalOpen(true);
+  }
   
   return (
     <div className="App">
       <header className="App-header">
         {localStorage.getItem("accessToken") !== "undefined" && localStorage.getItem("accessToken") ?
         <div className="main-container">
+          <Modal open={modalOpen} onClose={() => setModalOpen(false)} />
           <div className="navbar">
             <Button className="btn logout" text="Log Out" onClick={logOutBtnLogic} />
             <Button className="btn info" text="User Info" onClick={getUserProfile} />
@@ -117,7 +125,7 @@ function App() {
           </div>
           <Header login={userProfile.login} />
           {<UserProfileWindow userProfile={userProfile} />}
-          {Object.keys(allRepos).length > 0 && <ReposList visibleRepos={visible} allRepos={allRepos} showMore={showMoreRepos} />}
+          {Object.keys(allRepos).length > 0 && <ReposList visibleRepos={visible} allRepos={allRepos} showMore={showMoreRepos} showModal={showModal} />}
         </div> 
         :
         <h3><Button className="btn login" text="Login via GitHub" onClick={() => {logOutBtnLogic(); githubOauth()}} />, to see the stats</h3>
