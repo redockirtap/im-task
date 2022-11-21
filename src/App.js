@@ -10,19 +10,19 @@ import ReposList from "./components/ReposList";
 const CLIENT_ID = "2e7940c77b22ef261b29";
 
 function App() {
+  
   const [rerender, SetRerender] = useState(false);
   const [userProfile, setUserProfile] = useState({});
   const [allRepos, setAllRepos] = useState({});
   const [visible, setVisible] = useState(6);
   const [visibleUserProfile, setVisibleUserProfile] = useState(false);
   
-  useEffect(() => { // используется для проверки - получен ли код
+  useEffect(() => { 
     const urlWithCode = window.location.search;
     const urlParams = new URLSearchParams(urlWithCode);
     const code = urlParams.get("code");
-    console.log(code);
 
-    // localStorage
+    // Requesting access token
     if(code && localStorage.getItem("accessToken") === null) {
       async function getAccessToken() {
         const res = await fetch(`http://localhost:4000/getAccessToken?code=${code}`, {
@@ -30,16 +30,57 @@ function App() {
         })
         
         const data = await res.json();
-        console.log(data);
-        if(data.access_token) localStorage.setItem("accessToken", data.access_token);
+        localStorage.setItem("accessToken", data.access_token);
         SetRerender(!rerender);
       }
       getAccessToken();
     }
   }, []);
 
+  const addToCache = (cacheName, url, res) => { 
+    const data = new Response(JSON.stringify(res));
+    caches.open(cacheName).then((cache) => {
+    cache.put(url, data);
+    alert('Data Added into cache!')
+    });
+  };
+  
+  const getFromCache = async (cacheName, url) => {
+    if (!(await caches.has(cacheName))) return;
+    const cache = await caches.open(cacheName);
+    const cachedResponse = await cache.match(url);
+    const data = await cachedResponse.json();
+    console.log(data)
+    cacheName === "User Profile" ? setUserProfile(data) : setAllRepos(data);
+  };
+
+  const clearCache = async () => {
+    const allCache = await caches.keys();
+    allCache.forEach(cache => caches.delete(cache));
+  }
+
+  const logOutBtnLogic = () => {
+    clearCache();
+    localStorage.clear();
+    SetRerender(!rerender);
+  }
+
+  // const getFromCache = async () => {
+    
+  //   const url = 'https://localhost:3000'
+  //   const cacheName = await caches.keys()
+  //   cacheName.filter(async(name) => {
+  //     const cacheStorage = await caches.open(name);
+  //     const cachedResponse = await cacheStorage.match(url);
+  //     const data = await cachedResponse.json() 
+  //     console.log(data);
+  //     setUserProfile(data);
+  //   })
+  // };
+  
+
   async function getUserProfile() {
-    // if (localStorage.getItem("visibleUserProfile")) return;
+    if (userProfile.length > 0) return;
     console.log('render!');
     const res = await fetch("http://localhost:4000/getUserProfile", {
       method: "GET",
@@ -49,9 +90,36 @@ function App() {
     })
     const data = await res.json();
     setUserProfile(data);
-    // setVisibleUserProfile(true);
-    // localStorage.setItem("visibleUserProfile", true);
+    addToCache('User Profile', 'https://localhost:3000', data);
+    getFromCache('User Profile', 'https://localhost:3000');
   };
+
+  
+  // const getUserProfileCache = async () => {
+    
+	// 	const url = 'https://localhost:4000'
+	// 	const names = await caches.keys()
+	// 	const cacheDataArray = []
+	// 	names.forEach(async(name) => {
+	// 	  const cacheStorage = await caches.open(name);
+	// 	  // Fetching that particular cache data
+	// 	  const cachedResponse = await cacheStorage.match(url);
+	// 	  const dataB = await cachedResponse.json() /////////////////////////////TVOJA DATA////
+	// 	  // Pushing fetched data into our cacheDataArray
+	// 	  cacheDataArray.push(dataB);
+	// 	  console.log(dataB);
+	// 	  setUserProfile(dataB);
+	// 	})
+  // };
+
+
+  useEffect(() => { 
+	  getFromCache('User Profile','https://localhost:3000');
+	  // if (userProfile.length > 0) getFromCache('User Profile','https://localhost:3000');
+	  // if (allRepos.length > 0) getFromCache('User Repos','https://localhost:3000');
+	  getFromCache('User Repos','https://localhost:3000');
+  }, []);
+
 
   async function getReposCards() {
     // console.log(localStorage.getItem("pagesCache"));
@@ -64,6 +132,8 @@ function App() {
     })
     const data = await res.json();
     // localStorage.setItem("pagesCache", visible);
+    addToCache('User Repos', 'https://localhost:3000', data);
+    // getFromCache('User Repos', 'https://localhost:3000');
     setAllRepos(data);
   }
 
@@ -75,14 +145,15 @@ function App() {
     setVisible((prevValue) => prevValue + 6);
     localStorage.setItem("pagesCache", visible);
   };
-
+  
   return (
     <div className="App">
       <header className="App-header">
         {localStorage.getItem("accessToken") ?
         <div className="main-container">
+          
           <div className="navbar">
-            <Button className="btn logout" text="Log Out" onClick={() => {localStorage.clear(); SetRerender(!rerender)}} />
+            <Button className="btn logout" text="Log Out" onClick={logOutBtnLogic} />
             <Button className="btn info" text="User Info" onClick={getUserProfile} />
             <Button className="btn show-repos" text="Show Repos" onClick={getReposCards} />
           </div>
@@ -91,8 +162,8 @@ function App() {
 
           {Object.keys(allRepos).length > 0 
           && <ReposList visibleRepos={visible} allRepos={allRepos} showMore={showMoreRepos} />}
-          
-        </div>  
+        </div> 
+         
         :
         <>
           <h3><Button className="btn login" text="Login via GitHub" onClick={githubOauth} />, to see the stats</h3>
@@ -101,6 +172,10 @@ function App() {
       </header>
     </div>
   );
+
+
 }
+
+
 
 export default App;

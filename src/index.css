@@ -37,6 +37,7 @@ h3 {
   width: 27vw;
   height: 24vh;
   transition: 0.4s;
+  cursor: pointer;
 }
 
 .repo:hover {
@@ -102,7 +103,6 @@ h3 {
 
 .header {
   width: 40vw;
-  /* background-color: rgb(86, 32, 173); */
 }
 
 .user-container {
@@ -110,11 +110,9 @@ h3 {
   width: 40vw;
   display: flex;
   flex-direction: column;
-  /* background-color: rgb(35, 27, 48); */
   border-radius: 24px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
-  /* box-shadow: 3px 3px rgba(32, 31, 31, 0.755); */
 }
 
 img {
