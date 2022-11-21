@@ -11,7 +11,9 @@ const ReposList = ({ allRepos, visibleRepos, showMore }) => {
               return <Repo key={repo.id} repoId={repo.id} repoName={repo.name}/>
           })}
       </div>
-      <Button className="btn load-repos" text="Load More" onClick={showMore} />
+      { cachedRepos <= Object.keys(allRepos).length ?
+        <Button className="btn load-repos" text="Load More" onClick={showMore} /> : <p>No more repos here!</p> 
+      }
     </section>
   )
 }

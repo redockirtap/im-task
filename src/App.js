@@ -11,31 +11,31 @@ const CLIENT_ID = "2e7940c77b22ef261b29";
 
 function App() {
   
-  const [rerender, SetRerender] = useState(false);
+  const [rerender, setRerender] = useState(false);
   const [userProfile, setUserProfile] = useState({});
   const [allRepos, setAllRepos] = useState({});
   const [visible, setVisible] = useState(localStorage.getItem("pagesCache") ? Number(localStorage.getItem("pagesCache")) : 6);
-  const [visibleUserProfile, setVisibleUserProfile] = useState(false);
   
-  useEffect(() => { 
+  function githubOauth() {
+    window.location.assign(`https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&scope=user%20repo&per_page=1000`);
+  };
+
+  const checkAccessToken = () => {
     const urlWithCode = window.location.search;
     const urlParams = new URLSearchParams(urlWithCode);
     const code = urlParams.get("code");
-
-    // Requesting access token
     if(code && localStorage.getItem("accessToken") === null) {
       async function getAccessToken() {
         const res = await fetch(`http://localhost:4000/getAccessToken?code=${code}`, {
           method: "GET", // GET is default method tho
         })
-        
         const data = await res.json();
         localStorage.setItem("accessToken", data.access_token);
-        SetRerender(!rerender);
+        setRerender(!rerender);
       }
       getAccessToken();
     }
-  }, []);
+  }
 
   const addToCache = (cacheName, url, res) => { 
     const data = new Response(JSON.stringify(res));
@@ -53,6 +53,12 @@ function App() {
     cacheName === "User Profile" ? setUserProfile(data) : setAllRepos(data);
   };
 
+  useEffect(() => { 
+    checkAccessToken();
+	  getFromCache('User Profile','https://localhost:3000');
+	  getFromCache('User Repos','https://localhost:3000');
+  }, []);
+
   const clearCache = async () => {
     const allCache = await caches.keys();
     allCache.forEach(cache => caches.delete(cache));
@@ -61,12 +67,11 @@ function App() {
   const logOutBtnLogic = () => {
     clearCache();
     localStorage.clear();
-    SetRerender(!rerender);
+    setRerender(!rerender);
   }
 
   async function getUserProfile() {
-    if (userProfile.length > 0) return;
-    console.log('render!');
+    if (Object.keys(userProfile).length > 0) return;
     const res = await fetch("http://localhost:4000/getUserProfile", {
       method: "GET",
       headers: {
@@ -78,13 +83,6 @@ function App() {
     addToCache('User Profile', 'https://localhost:3000', data);
     getFromCache('User Profile', 'https://localhost:3000');
   };
-
-
-  useEffect(() => { 
-	  getFromCache('User Profile','https://localhost:3000');
-	  getFromCache('User Repos','https://localhost:3000');
-  }, []);
-
 
   async function getReposCards() {
     if (localStorage.getItem("pagesCache")) return;
@@ -100,10 +98,6 @@ function App() {
     setAllRepos(data);
   }
 
-  function githubOauth() {
-    window.location.assign(`https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&scope=user%20repo&per_page=1000`);
-  };
-
   const showMoreRepos = async () => { // Pagination
     setVisible((prevValue) => {
       localStorage.setItem("pagesCache", prevValue + 6);
@@ -114,9 +108,8 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        {localStorage.getItem("accessToken") ?
+        {localStorage.getItem("accessToken") !== "undefined" && localStorage.getItem("accessToken") ?
         <div className="main-container">
-          
           <div className="navbar">
             <Button className="btn logout" text="Log Out" onClick={logOutBtnLogic} />
             <Button className="btn info" text="User Info" onClick={getUserProfile} />
@@ -124,23 +117,14 @@ function App() {
           </div>
           <Header login={userProfile.login} />
           {<UserProfileWindow userProfile={userProfile} />}
-
-          {Object.keys(allRepos).length > 0 
-          && <ReposList visibleRepos={visible} allRepos={allRepos} showMore={showMoreRepos} />}
+          {Object.keys(allRepos).length > 0 && <ReposList visibleRepos={visible} allRepos={allRepos} showMore={showMoreRepos} />}
         </div> 
-         
         :
-        <>
-          <h3><Button className="btn login" text="Login via GitHub" onClick={githubOauth} />, to see the stats</h3>
-        </>
+        <h3><Button className="btn login" text="Login via GitHub" onClick={() => {logOutBtnLogic(); githubOauth()}} />, to see the stats</h3>
       }
       </header>
     </div>
   );
-
-
 }
-
-
 
 export default App;
