@@ -7,7 +7,7 @@ const UserProfileWindow = ({ userProfile }) => {
             <div className="user-container">
                 <div className="user profile-bio">
                     <img src={userProfile.avatar_url} alt={`${userProfile.login} avatar`}/>
-                    I am {userProfile.name}!
+                    {userProfile.login}
                 </div>
                 <DataList userProfile={userProfile} className="user profile-info" />
             </div>

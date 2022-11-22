@@ -28,7 +28,7 @@ h3 {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 2rem;
+  /* gap: 2rem; */
   width: 66vw;
 }
 
@@ -37,21 +37,24 @@ h3 {
   width: 27vw;
   height: 24vh;
   transition: 0.4s;
-  cursor: pointer;
-}
-
-.repo:hover {
-  background-color: rgba(25, 25, 25, 0.768);
+  cursor: default;
 }
 
 .datalist {
   margin: 0;
-  padding: 2rem;
-  list-style: none;
   text-align: center;
+  font-size: 26px;
+
 }
 
-.btn {
+ul {
+  margin: 0;
+  list-style: none;
+  text-align: left;
+  padding: 0;
+}
+
+.btn, a {
   appearance: none;
   font-size: 24px;
   font-family: 'JetBrains Mono', 'Roboto', monospace;
@@ -65,13 +68,13 @@ h3 {
   transition: 0.1s;
 }
 
-.btn:hover {
+.btn:hover, a:hover {
   font-weight: 500;
   background-color: rgb(251, 65, 84);
   box-shadow: 3px 3px 3px rgba(209, 18, 18, 0.816);
 }
 
-.btn:active {
+.btn:active, a:active {
   color: rgb(201, 15, 33);
   font-weight: bold;
   background-color: transparent;
@@ -85,6 +88,7 @@ h3 {
 }
 
 .navbar {
+  margin-top: 2rem;
   position: fixed;
   text-align: center;
   top: 0px;
@@ -98,7 +102,9 @@ h3 {
 .main-container {
   display: flex;
   flex-direction: column;
+  justify-content: start;
   align-items: center;
+  gap: 2rem;
 }
 
 .header {
@@ -110,9 +116,7 @@ h3 {
   width: 40vw;
   display: flex;
   flex-direction: column;
-  border-radius: 24px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+  align-items: center;
 }
 
 img {
@@ -124,11 +128,11 @@ img {
 
 .profile-bio {
   display: flex;
+  justify-content: start;
   align-items: center;
   padding: 2rem;
-  padding-bottom: 0;
-  justify-content: center;
   gap: 2rem;
+  font-weight: bold;
 }
 
 .modal-container {
@@ -137,10 +141,15 @@ img {
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: rgb(52, 44, 44);
-  padding: 2rem;
   z-index: 1000;
   width: 40vw;
-  height: 40vh;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+
+  border-radius: 24px;
+  box-shadow: 1px 1px 2px rgba(14, 12, 12, 0.471);
+  font-size: 24px;
 }
 
 .modal-overlay{ 
@@ -154,6 +163,39 @@ img {
   background-color: rgba(0, 0, 0, 0.614);
   z-index: 1000;
 
+}
+
+.modal-bar {
+  align-self: flex-end;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+}
+
+.modal-name {
+  margin: 0;
+  padding: 24px;
+  font-weight: 500;
+  background-color: rgb(164, 41, 164);
+  border-radius: 0 0 0 0;
+
+}
+
+.modal-close {
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-info {
+  /* margin: 2rem; */
+  padding-left: 2rem;
+}
+
+a {
+  padding: 0.5rem;
+  margin: 0;
 }
 /* @keyframes shake {
   0% { -webkit-transform: translate(0px, -8px); } 

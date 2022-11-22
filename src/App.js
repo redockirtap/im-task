@@ -2,7 +2,7 @@ import logo from './logo.svg';
 import './App.css';
 import { useEffect, useState } from 'react';
 
-import Header from "./components/Header";
+// import Header from "./components/Header";
 import Button from "./components/Button";
 import UserProfileWindow from "./components/UserProfileWindow";
 import ReposList from "./components/ReposList";
@@ -16,7 +16,9 @@ function App() {
   const [userProfile, setUserProfile] = useState({});
   const [allRepos, setAllRepos] = useState({});
   const [visible, setVisible] = useState(localStorage.getItem("pagesCache") ? Number(localStorage.getItem("pagesCache")) : 6);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalID, setModalID] = useState(0);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [repoLanguages, setRepoLanguages] = useState({});
   
   function githubOauth() {
     window.location.assign(`https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&scope=user%20repo&per_page=1000`);
@@ -99,7 +101,7 @@ function App() {
     addToCache('User Repos', 'https://localhost:3000', data);
     setAllRepos(data);
   }
-
+  
   const showMoreRepos = async () => { // Pagination
     setVisible((prevValue) => {
       localStorage.setItem("pagesCache", prevValue + 6);
@@ -107,25 +109,43 @@ function App() {
     });
   };
 
-  const showModal = () => {
-    console.log("hei");
-    setModalOpen(true);
+  const showModal = (e) => {
+    const currentID = e.currentTarget.previousSibling.id;
+    setModalID(currentID);
+    fetchRepo(currentID);
   }
+
+  const fetchRepo =  async function fetchRepoLanguageAndDescription(currentID) {
+    const currentRepo = allRepos.filter(repo => repo.id === Number(currentID));
+    console.log(currentRepo, currentID)
+    const followersURL = currentRepo[0].subscribers_url;
+    const LanguagesURL = currentRepo[0].languages_url;
+
+    const repoFollowers = await fetch(followersURL);
+    const repoLanguages = await fetch(LanguagesURL);
+
+    const followersData = await repoFollowers.json();
+    const LanguagesData = await repoLanguages.json();
+
+    setFollowersCount(followersData.length);
+    setRepoLanguages(LanguagesData);
+  };
   
   return (
     <div className="App">
       <header className="App-header">
         {localStorage.getItem("accessToken") !== "undefined" && localStorage.getItem("accessToken") ?
         <div className="main-container">
-          <Modal open={modalOpen} onClose={() => setModalOpen(false)} />
+          <Modal open={modalID} modalID={modalID} onClose={() => setModalID(false)} allRepos={allRepos} followersCount={followersCount} repoLanguages={repoLanguages} />
           <div className="navbar">
             <Button className="btn logout" text="Log Out" onClick={logOutBtnLogic} />
             <Button className="btn info" text="User Info" onClick={getUserProfile} />
             <Button className="btn show-repos" text="Show Repos" onClick={getReposCards} />
           </div>
-          <Header login={userProfile.login} />
           {<UserProfileWindow userProfile={userProfile} />}
-          {Object.keys(allRepos).length > 0 && <ReposList visibleRepos={visible} allRepos={allRepos} showMore={showMoreRepos} showModal={showModal} />}
+          {Object.keys(allRepos).length > 0 
+          && <ReposList visibleRepos={visible} allRepos={allRepos}
+           showMore={showMoreRepos} showModal={showModal} followersCount={followersCount} />}
         </div> 
         :
         <h3><Button className="btn login" text="Login via GitHub" onClick={() => {logOutBtnLogic(); githubOauth()}} />, to see the stats</h3>
