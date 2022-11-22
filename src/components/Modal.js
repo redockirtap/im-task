@@ -5,13 +5,10 @@ import { AiOutlineCloseCircle } from 'react-icons/ai';
 
 const Modal = ( { open, onClose, allRepos, modalID, followersCount, repoLanguages, repoDescription } ) => {
   if (!open) return null;
-  if (followersCount === null) followersCount = 0;
   modalID = Number(modalID);
   const currentRepo = allRepos.filter(repo => repo.id === modalID);
-
-  console.log(repoLanguages)
   const languagesArr = Object.keys(repoLanguages).map(key => [key]);
-  console.log(typeof followersCount)
+  
   return ReactDom.createPortal(
     <>
         <div className="modal-overlay"></div>
@@ -29,8 +26,9 @@ const Modal = ( { open, onClose, allRepos, modalID, followersCount, repoLanguage
                         {typeof repoLanguages !== "string" ? languagesArr.map((array, index) => <li key={`lang-${index}`}>{array[0]}</li>) : <>no info</>}
                       </ul>
                     </div>
-                    {followersCount.length > 0 ? <p>Watchers: {followersCount}</p> : <p>Watchers: 0</p>}
-                    { repoDescription.length > 0 ?
+                    <div>
+                    {followersCount > 0 && followersCount !== null ? <p>Watchers: {followersCount}</p> : <p>Watchers: 0</p>}
+                    { repoDescription !== 0 ?
                       <article className="repo-description" style={{padding: "2rem 0"}}>
                       <h3>Project description:</h3>
                       {repoDescription}
@@ -38,6 +36,7 @@ const Modal = ( { open, onClose, allRepos, modalID, followersCount, repoLanguage
                       :
                       <>"null"</>
                     }
+                    </div>
                 </div>
             </div>
         </div>

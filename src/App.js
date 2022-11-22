@@ -130,13 +130,11 @@ function App() {
     const repoFollowers = await fetch(followersURL);
     const repoLanguages = await fetch(languagesURL);
 
-    console.log(repoFollowers)
     const followersData = await repoFollowers.json();
     const languagesData = await repoLanguages.json();
     
-
-    followersData.length > 0 ? setFollowersCount(followersData.length) : setFollowersCount(0);
-    setRepoLanguages(languagesData);
+    setFollowersCount(followersData?.length || 0);
+    languagesData["message"] !== "Not Found" ? setRepoLanguages(languagesData) : setRepoLanguages("no info");
     setRepoDescription(repoDescription);
   };
   

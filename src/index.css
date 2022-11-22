@@ -131,6 +131,7 @@ img {
   justify-content: start;
   align-items: center;
   padding: 2rem;
+  padding-left: 0;
   gap: 2rem;
   font-weight: bold;
 }
