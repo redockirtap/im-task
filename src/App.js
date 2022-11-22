@@ -19,6 +19,7 @@ function App() {
   const [modalID, setModalID] = useState(0);
   const [followersCount, setFollowersCount] = useState(0);
   const [repoLanguages, setRepoLanguages] = useState({});
+  const [repoDescription, setRepoDescription] = useState('');
   
   function githubOauth() {
     window.location.assign(`https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&scope=user%20repo&per_page=1000`);
@@ -117,18 +118,26 @@ function App() {
 
   const fetchRepo =  async function fetchRepoLanguageAndDescription(currentID) {
     const currentRepo = allRepos.filter(repo => repo.id === Number(currentID));
-    console.log(currentRepo, currentID)
+    if (currentRepo[0].size < 1) {
+      return [setRepoDescription("Repo is empty"),
+              setRepoLanguages("no info"),
+              setFollowersCount(0)];
+    }
     const followersURL = currentRepo[0].subscribers_url;
-    const LanguagesURL = currentRepo[0].languages_url;
-
+    const languagesURL = currentRepo[0].languages_url;
+    const repoDescription = currentRepo[0].description;
+    
     const repoFollowers = await fetch(followersURL);
-    const repoLanguages = await fetch(LanguagesURL);
+    const repoLanguages = await fetch(languagesURL);
 
+    console.log(repoFollowers)
     const followersData = await repoFollowers.json();
-    const LanguagesData = await repoLanguages.json();
+    const languagesData = await repoLanguages.json();
+    
 
-    setFollowersCount(followersData.length);
-    setRepoLanguages(LanguagesData);
+    followersData.length > 0 ? setFollowersCount(followersData.length) : setFollowersCount(0);
+    setRepoLanguages(languagesData);
+    setRepoDescription(repoDescription);
   };
   
   return (
@@ -136,7 +145,8 @@ function App() {
       <header className="App-header">
         {localStorage.getItem("accessToken") !== "undefined" && localStorage.getItem("accessToken") ?
         <div className="main-container">
-          <Modal open={modalID} modalID={modalID} onClose={() => setModalID(false)} allRepos={allRepos} followersCount={followersCount} repoLanguages={repoLanguages} />
+          <Modal open={modalID} modalID={modalID} onClose={() => setModalID(false)}
+           allRepos={allRepos} followersCount={followersCount} repoLanguages={repoLanguages} repoDescription={repoDescription} />
           <div className="navbar">
             <Button className="btn logout" text="Log Out" onClick={logOutBtnLogic} />
             <Button className="btn info" text="User Info" onClick={getUserProfile} />

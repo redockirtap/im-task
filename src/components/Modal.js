@@ -3,39 +3,15 @@ import ReactDom from 'react-dom';
 import Button from "./Button"
 import { AiOutlineCloseCircle } from 'react-icons/ai';
 
-const Modal = ( { open, onClose, allRepos, modalID, followersCount, repoLanguages } ) => {
+const Modal = ( { open, onClose, allRepos, modalID, followersCount, repoLanguages, repoDescription } ) => {
   if (!open) return null;
+  if (followersCount === null) followersCount = 0;
   modalID = Number(modalID);
   const currentRepo = allRepos.filter(repo => repo.id === modalID);
-//   let followersCount;
-//   const fetchRepo =  async function fetchRepoLanguageAndDescription() {
-//         const followersURL = currentRepo[0].subscribers_url;
-//         const LanguagesURL = currentRepo[0].languages_url;
 
-//         const repoFollowers = await fetch(followersURL);
-//         const repoLanguages = await fetch(LanguagesURL);
-
-//         const followersData = await repoFollowers.json();
-//         const LanguagesData = await repoLanguages.json();
-//         // followersCount = followersData.length;
-        
-//         console.log(LanguagesData)
-//         const follow = LanguagesData;
-//         console.log(follow)
-//         return follow;
-//     };
-//     console.log(fetchRepo().PromiseResult)
-//         fetchRepo().then(res => res).then(data => followersCount = data);
-//   const followers = async () =>  await fetchRepo();
-//   const a = (async () =>{ 
-//     followersCount = await fetchRepo();
-//     console.log(followersCount);
-//     })();
-//   console.log(followersCount, followers().then(data => data));
-//   (async () => console.log(await fetchRepo()))()
-// console.log(repoLanguages.['HTML'])
-const languagesArr = Object.keys(repoLanguages).map(key => [key]);
-console.log(languagesArr.map(array => console.log(array)))
+  console.log(repoLanguages)
+  const languagesArr = Object.keys(repoLanguages).map(key => [key]);
+  console.log(typeof followersCount)
   return ReactDom.createPortal(
     <>
         <div className="modal-overlay"></div>
@@ -50,10 +26,18 @@ console.log(languagesArr.map(array => console.log(array)))
                     <div className="repo-language">
                       Project languages:
                       <ul>
-                        {languagesArr.map(array => <li>{array[0]}</li>)}
+                        {typeof repoLanguages !== "string" ? languagesArr.map((array, index) => <li key={`lang-${index}`}>{array[0]}</li>) : <>no info</>}
                       </ul>
                     </div>
-                    <p>Watchers: {followersCount}</p>
+                    {followersCount.length > 0 ? <p>Watchers: {followersCount}</p> : <p>Watchers: 0</p>}
+                    { repoDescription.length > 0 ?
+                      <article className="repo-description" style={{padding: "2rem 0"}}>
+                      <h3>Project description:</h3>
+                      {repoDescription}
+                      </article>
+                      :
+                      <>"null"</>
+                    }
                 </div>
             </div>
         </div>
