@@ -1,8 +1,6 @@
-import logo from './logo.svg';
 import './App.css';
 import { useEffect, useState } from 'react';
 
-// import Header from "./components/Header";
 import Button from "./components/Button";
 import UserProfileWindow from "./components/UserProfileWindow";
 import ReposList from "./components/ReposList";
@@ -12,24 +10,25 @@ const CLIENT_ID = "2e7940c77b22ef261b29";
 
 function App() {
   
-  const [rerender, setRerender] = useState(false);
-  const [userProfile, setUserProfile] = useState({});
-  const [allRepos, setAllRepos] = useState({});
-  const [visible, setVisible] = useState(localStorage.getItem("pagesCache") ? Number(localStorage.getItem("pagesCache")) : 6);
-  const [modalID, setModalID] = useState(0);
-  const [followersCount, setFollowersCount] = useState(0);
-  const [repoLanguages, setRepoLanguages] = useState({});
-  const [repoDescription, setRepoDescription] = useState('');
+  const [rerender, setRerender] = useState(false); // to rerender the page on demand
+  const [userProfile, setUserProfile] = useState({}); // to store user profile data
+  const [allRepos, setAllRepos] = useState({}); // to store repos data
+  const [visible, setVisible] = useState(localStorage.getItem("pagesCache") ? Number(localStorage.getItem("pagesCache")) : 6); // to store pagination data
+  const [modalID, setModalID] = useState(0); // to open modal with repo
+  const [followersCount, setFollowersCount] = useState(0); // to fetch data from repo data
+  const [repoLanguages, setRepoLanguages] = useState({});// to fetch data from repo data
+  const [repoDescription, setRepoDescription] = useState('');// to fetch data from repo data
   
-  function githubOauth() {
+  function githubOauth() { // to authorize thru github oauth
     window.location.assign(`https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&scope=user%20repo&per_page=1000`);
   };
 
-  const checkAccessToken = () => {
+  const checkAccessToken = () => { // receive token
     const urlWithCode = window.location.search;
     const urlParams = new URLSearchParams(urlWithCode);
     const code = urlParams.get("code");
-    if(code && localStorage.getItem("accessToken") === null) {
+
+    if(code && localStorage.getItem("accessToken") === null) { // get token if localStorage is empty
       async function getAccessToken() {
         const res = await fetch(`http://localhost:4000/getAccessToken?code=${code}`, {
           method: "GET", // GET is default method tho
@@ -42,19 +41,18 @@ function App() {
     }
   }
 
-  const addToCache = (cacheName, url, res) => { 
+  const addToCache = (cacheName, url, res) => { // to add data to cache
     const data = new Response(JSON.stringify(res));
     caches.open(cacheName).then((cache) => {
     cache.put(url, data);
     });
   };
   
-  const getFromCache = async (cacheName, url) => {
+  const getFromCache = async (cacheName, url) => { // to receive data from cache
     if (!(await caches.has(cacheName))) return;
     const cache = await caches.open(cacheName);
     const cachedResponse = await cache.match(url);
     const data = await cachedResponse.json();
-    console.log(data)
     cacheName === "User Profile" ? setUserProfile(data) : setAllRepos(data);
   };
 
@@ -64,18 +62,18 @@ function App() {
 	  getFromCache('User Repos','https://localhost:3000');
   }, []);
 
-  const clearCache = async () => {
+  const clearCache = async () => { // to clear the cache
     const allCache = await caches.keys();
     allCache.forEach(cache => caches.delete(cache));
   }
 
-  const logOutBtnLogic = () => {
+  const logOutBtnLogic = () => { // logic to clear the cache and storage after logging out
     clearCache();
     localStorage.clear();
     setRerender(!rerender);
   }
 
-  async function getUserProfile() {
+  async function getUserProfile() { // to receive and store user data
     if (Object.keys(userProfile).length > 0) return;
     const res = await fetch("http://localhost:4000/getUserProfile", {
       method: "GET",
@@ -89,7 +87,7 @@ function App() {
     getFromCache('User Profile', 'https://localhost:3000');
   };
 
-  async function getReposCards() {
+  async function getReposCards() { // to receive and store repos data
     if (localStorage.getItem("pagesCache")) return;
     const res = await fetch("http://localhost:4000/getUserRepos", {
       method: "GET",
@@ -116,7 +114,7 @@ function App() {
     fetchRepo(currentID);
   }
 
-  const fetchRepo =  async function fetchRepoLanguageAndDescription(currentID) {
+  const fetchRepo =  async function fetchRepoLanguageAndDescription(currentID) { // to fetch data from repos api urls
     const currentRepo = allRepos.filter(repo => repo.id === Number(currentID));
     if (currentRepo[0].size < 1) {
       return [setRepoDescription("Repo is empty"),
@@ -135,7 +133,7 @@ function App() {
     
     setFollowersCount(followersData?.length || 0);
     languagesData["message"] !== "Not Found" ? setRepoLanguages(languagesData) : setRepoLanguages("no info");
-    setRepoDescription(repoDescription);
+    setRepoDescription(repoDescription || "no description");
   };
   
   return (
