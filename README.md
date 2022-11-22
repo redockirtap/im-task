@@ -16,7 +16,7 @@ The task is to show skills of working with:
 2. modern frontend frameworks and libraries;
 3. backend and sensitive data (such as client_secret).
 
-Deadline: 26 Nov 2022.
+Deadline: 22 Nov 2022.
 
 ## Technologies used
 
